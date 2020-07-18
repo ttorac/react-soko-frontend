@@ -11,3 +11,76 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+/* LevelMap CSS */
+.t0, .t1, .t2, .t3, .t4, .t8, .t9 {
+  border: 1px solid black;
+  width: 32px;
+  height: 32px;
+  display: block;
+  float: left;
+}
+
+.t0 {
+  background-color: greenyellow;
+}
+
+.t1 {
+  background-color: grey;
+}
+
+.t2 {
+  background-color: gold;
+}
+
+.t3 {
+  background-color: peru;
+}
+
+.t4 {
+  background-color: khaki;
+}
+
+.t8 {
+  background-color: tomato;
+}
+
+.t9 {
+  background-color: blueviolet;
+}
+
+.l {
+  clear: left;
+}
+
+/* Keypad CSS */
+.keypad {
+  float: left;
+  clear: both;
+  margin: 10px 10px;
+  padding: 10px;
+  border: 1px solid gray;
+}
+
+.key {
+  border: 1px solid transparent;
+  float: left;
+  margin: 3px;
+  width: 32px;
+  height: 32px;
+}
+
+.arrowUpKey, .arrowLeftKey, .arrowDownKey, .arrowRightKey {
+  border: 1px solid gray;
+  text-align: center;
+  vertical-align: middle  ;
+}
+
+.arrowLeftKey {
+  clear: left;
+}
+
+.lit {
+  background-color: yellowgreen;
+}
