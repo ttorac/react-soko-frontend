@@ -17,6 +17,9 @@ class Keypad extends React.Component {
     }
 
     handleKeyDown = (e) => {
+        const {lock} = this.props
+        // console.log(lock)
+        if (lock) return false
         this.setState({keys: {[e.code]: true}})
         this.props.callback(e.code)
         // console.log(this.state)

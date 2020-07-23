@@ -1,7 +1,10 @@
 import React from 'react';
 import LevelMap from './LevelMap'
 import Keypad from './Keypad'
+import Scoreboard from './Scoreboard'
 import './App.css';
+import { TileEnum, tileMap } from './Tiles';
+
 
 class App extends React.Component {
 
@@ -16,10 +19,10 @@ class App extends React.Component {
             tiles: [            // 0. floor, 1. wall, 2. mark, 3. box on floor, 4. box on mark, 9. character, 8. character on mark
             1,1,1,1,1,1,1,1,    // for trail purposes, 3 yields 0, 4 yelds 2, 8 yelds 2
             1,0,0,0,0,0,0,1,
-            1,0,0,0,0,2,0,1,
+            1,0,3,0,0,2,0,1,
             1,0,0,0,0,0,0,1,
             1,0,0,0,0,0,0,1,
-            1,9,3,0,0,0,0,1,
+            1,9,0,0,0,0,0,1,
             1,0,0,0,0,0,0,1,
             1,1,1,1,1,1,1,1
             ],
@@ -27,10 +30,14 @@ class App extends React.Component {
             position: null // initial position
         }
     ],
+    level: null,
     width: 8,
     height: 8,
     initPos: 41,
-    moveCount: 0
+    totalFits: 0,
+    fitCount: 0,
+    moveCount: 0,
+    moves: []
   }
 
   actionHandler = (action) => {
@@ -39,10 +46,10 @@ class App extends React.Component {
     // // get data
     const {history} = this.state
     const histCopy = history.slice()
-    const curerntRound = this.getCurrentRound(histCopy)
-    const tilesCopy = curerntRound.tiles.slice()
+    const currentRound = this.getCurrentRound(histCopy)
+    const tilesCopy = currentRound.tiles.slice()
 
-    const objRounds = histCopy.concat([{tiles: tilesCopy, action: curerntRound.action, position: curerntRound.position}])
+    const objRounds = histCopy.concat([{tiles: tilesCopy, action: currentRound.action, position: currentRound.position}])
     
     // AUDIT - this may need to be audit by someone more experienced
     // const obj = {tiles: null, action: null, position: null}
@@ -126,7 +133,7 @@ class App extends React.Component {
       // data to be saved
       tiles[pos] = newCharTile
       tiles[index1] = newTile1
-      if (index2 !== null && newTile2 !== null && newTile2 !== null)
+      if (index2 !== null && newTile2 !== null)
         tiles[index2] = newTile2
 
       currentRound.position = index1
@@ -172,7 +179,7 @@ class App extends React.Component {
           return true
       } else if (tiles[targetIndex] === 3 || tiles[targetIndex] === 4) { //box on the way
           targetIndex = this.getTargetIndex(targetIndex, dir)
-          if (tiles[targetIndex] === 0 || tiles[targetIndex] === 2)
+          if (tiles[targetIndex] === 0 || tiles[targetIndex] === 2) // TODO- review this part
               return true
           else
               return false
@@ -195,13 +202,137 @@ class App extends React.Component {
       return pos
   }
 
+  isLevelCompleted = () => {
+    const {history} = this.state
+    const tiles = this.getCurrentRound(history).tiles
+    // console.log(tiles)
+
+    // simplest way - temporary
+    for (const element of tiles) {
+      // console.log(element)
+      if (element === 2 || element === 3 || element === 8)
+        return false 
+    }
+    return true
+  }
+
+  componentDidMount() {
+    window.fetch(`${process.env.PUBLIC_URL}/AC_Easy.slc`)
+      .then(response => response.text())
+      .then(data => this.covertMapFormatting(data))
+  }
+
+  covertMapFormatting = (xmlString) => {
+    const xmlDOM = new DOMParser().parseFromString(xmlString, "application/xml")
+
+
+    // console.log(Object.keys(TileEnum.properties))
+    const fileName = "AC_Easy.slc"
+    const selectedLevel = null
+
+    const levels = xmlDOM.getElementsByTagName('Level')
+    for (const element of levels) {
+      let level = null,
+        width = null, 
+        height = null,
+        initPos = null,
+        numGoals = 0,
+        tiles = []
+
+      level = element.getAttribute('Id')
+      width = parseInt(element.getAttribute('Width'))
+      height = parseInt(element.getAttribute('Height'))
+      // console.log(level)
+        
+      let l = element.getElementsByTagName('L')
+
+      Array.prototype.map.call(l, (row, i) => {
+        let chars = row.innerHTML
+        let length = chars.length
+        let isBeforeFirstWall = true;
+
+        // prepare array
+        [...chars].forEach((char, a) => {
+          let isBlank = (char === TileEnum.properties[TileEnum.FLOOR].ext_code) && isBeforeFirstWall
+          let key = a + i*width
+          tiles[key] = isBlank ? TileEnum.BLANK : tileMap.get(char)
+          if (isBeforeFirstWall && tiles[key] === TileEnum.WALL) isBeforeFirstWall = false
+          // count quantity of goals in the level
+          if (char === TileEnum.properties[TileEnum.GOAL].ext_code ||
+            char === TileEnum.properties[TileEnum.BOX_ON_GOAL].ext_code ||
+            char === TileEnum.properties[TileEnum.PLAYER_ON_GOAL].ext_code) numGoals++
+          // define starting position
+          if (char === TileEnum.properties[TileEnum.PLAYER].ext_code || 
+            char === TileEnum.properties[TileEnum.PLAYER_ON_GOAL].ext_code) initPos = key
+          // if it's the end fill remaining positions with blank
+          if ((a === (length-1)) && a < width) Array.prototype.push.apply(tiles,new Array(width-length).fill(TileEnum.BLANK))
+        })
+      })
+
+      const dbObj = {
+        // _id
+        width: width,
+        height: height,
+        initPos: initPos,
+        totalGoals: numGoals,
+        levelSeq: null,
+        solutionHash: null,
+        source: fileName,
+        originId: level,
+        tiles: tiles
+      }
+
+      const lvlObj = {
+        level: level,
+        width: width,
+        height: height,
+        initPos: initPos,
+        totalGoals: numGoals,
+        tiles: tiles
+      }
+
+
+      if (dbObj.totalGoals < 6) console.log(JSON.stringify(dbObj))
+
+      // console.log(`${lvlObj.level} === ${selectedLevel} `)
+      if (lvlObj.level === selectedLevel) {
+        // console.log(JSON.stringify(lvlObj))
+        this.setState({
+          history: [
+              {
+                  tiles: lvlObj.tiles,
+                  action: null,
+                  position: null // initial position
+              }
+          ],
+          level: lvlObj.level,
+          width: lvlObj.width,
+          height: lvlObj.height,
+          initPos: lvlObj.initPos,
+          totalFits: lvlObj.totalGoals,
+          fitCount: 0,
+          moveCount: 0,
+          moves: ['ArrowUp','ArrowLeft','ArrowDown','ArrowRight']
+        })
+      }
+      // console.log(JSON.stringify(lvlObj))
+    }
+  }
+
 
   render() {
+    const score = {
+      level: this.state.level,
+      lastMove: null,
+      moveCount: this.state.moveCount,
+      moves: this.state.moves
+    }
 
     return (
       <div id="main">
         <LevelMap game={this.state}  />
-        <Keypad callback={this.actionHandler} />
+        <Keypad callback={this.actionHandler} lock={this.isLevelCompleted()} />
+        <Scoreboard score={score} />
       </div>
     )
   }
