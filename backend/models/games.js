@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 
 const gamesSchema = new mongoose.Schema({
-    player: String,
-    level: {type: mongoose.Types.ObjectId, ref: 'Level'},
+    uuid: {type: String, required: true},
+    level: {type: mongoose.Types.ObjectId, required: true, ref: 'Level'},
     startTime: Date,
     endTime: Date,
     moveCount: Number,

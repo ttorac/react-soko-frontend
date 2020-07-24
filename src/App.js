@@ -1,10 +1,10 @@
-import React from 'react';
+import React from 'react'
 import LevelMap from './LevelMap'
 import Keypad from './Keypad'
 import Scoreboard from './Scoreboard'
-import './App.css';
-import { TileEnum, tileMap } from './Tiles';
-
+import './App.css'
+import { TileEnum, tileMap } from './Tiles'
+import {v4 as uuidv4} from 'uuid'
 
 class App extends React.Component {
 
@@ -30,6 +30,7 @@ class App extends React.Component {
             position: null // initial position
         }
     ],
+    ready: false,
     level: null,
     width: 8,
     height: 8,
@@ -52,21 +53,8 @@ class App extends React.Component {
     const objRounds = histCopy.concat([{tiles: tilesCopy, action: currentRound.action, position: currentRound.position}])
     
     // AUDIT - this may need to be audit by someone more experienced
-    // const obj = {tiles: null, action: null, position: null}
 
-    // let {action} = this.props
-
-    // window.alert(action) - DEBUG
-    // if (action != null) {
-    //     this.doAction(action, objRounds)
-    //     action = null
-    //     // need to provide updated tiles
-    // }
-    // window.alert('handler: ' + action + ', ' + objRounds)
     this.doAction(action, objRounds)
-    
-    // this.setState({dir: dir})
-
   }
 
   doAction(action, rounds) { //TODO - might need rework or rename
@@ -118,18 +106,6 @@ class App extends React.Component {
 
       // save data
 
-      /*
-      const history = this.state.history.slice()
-      const current = history[history.length - 1]
-      tiles.cocurrent.tiles.slice()
-      turnData.tiles[pos] = newCharTile
-      turnData.tiles[index1] = newTile1
-      if (index2 !== null && newTile2 !== null && newTile2 !== null)
-          turnData.tiles[index2] = newTile2
-
-      
-      */
-
       // data to be saved
       tiles[pos] = newCharTile
       tiles[index1] = newTile1
@@ -140,6 +116,7 @@ class App extends React.Component {
       currentRound.action = dir
 
       // window.alert('went til the end')
+      
       this.setState({
           history: rounds,
           moveCount: roundNumber
@@ -216,109 +193,72 @@ class App extends React.Component {
     return true
   }
 
-  componentDidMount() {
-    window.fetch(`${process.env.PUBLIC_URL}/AC_Easy.slc`)
-      .then(response => response.text())
-      .then(data => this.covertMapFormatting(data))
-  }
-
-  covertMapFormatting = (xmlString) => {
-    const xmlDOM = new DOMParser().parseFromString(xmlString, "application/xml")
-
-
-    // console.log(Object.keys(TileEnum.properties))
-    const fileName = "AC_Easy.slc"
-    const selectedLevel = null
-
-    const levels = xmlDOM.getElementsByTagName('Level')
-    for (const element of levels) {
-      let level = null,
-        width = null, 
-        height = null,
-        initPos = null,
-        numGoals = 0,
-        tiles = []
-
-      level = element.getAttribute('Id')
-      width = parseInt(element.getAttribute('Width'))
-      height = parseInt(element.getAttribute('Height'))
-      // console.log(level)
-        
-      let l = element.getElementsByTagName('L')
-
-      Array.prototype.map.call(l, (row, i) => {
-        let chars = row.innerHTML
-        let length = chars.length
-        let isBeforeFirstWall = true;
-
-        // prepare array
-        [...chars].forEach((char, a) => {
-          let isBlank = (char === TileEnum.properties[TileEnum.FLOOR].ext_code) && isBeforeFirstWall
-          let key = a + i*width
-          tiles[key] = isBlank ? TileEnum.BLANK : tileMap.get(char)
-          if (isBeforeFirstWall && tiles[key] === TileEnum.WALL) isBeforeFirstWall = false
-          // count quantity of goals in the level
-          if (char === TileEnum.properties[TileEnum.GOAL].ext_code ||
-            char === TileEnum.properties[TileEnum.BOX_ON_GOAL].ext_code ||
-            char === TileEnum.properties[TileEnum.PLAYER_ON_GOAL].ext_code) numGoals++
-          // define starting position
-          if (char === TileEnum.properties[TileEnum.PLAYER].ext_code || 
-            char === TileEnum.properties[TileEnum.PLAYER_ON_GOAL].ext_code) initPos = key
-          // if it's the end fill remaining positions with blank
-          if ((a === (length-1)) && a < width) Array.prototype.push.apply(tiles,new Array(width-length).fill(TileEnum.BLANK))
-        })
-      })
-
-      const dbObj = {
-        // _id
-        width: width,
-        height: height,
-        initPos: initPos,
-        totalGoals: numGoals,
-        levelSeq: null,
-        solutionHash: null,
-        source: fileName,
-        originId: level,
-        tiles: tiles
-      }
-
-      const lvlObj = {
-        level: level,
-        width: width,
-        height: height,
-        initPos: initPos,
-        totalGoals: numGoals,
-        tiles: tiles
-      }
-
-
-      if (dbObj.totalGoals < 6) console.log(JSON.stringify(dbObj))
-
-      // console.log(`${lvlObj.level} === ${selectedLevel} `)
-      if (lvlObj.level === selectedLevel) {
-        // console.log(JSON.stringify(lvlObj))
-        this.setState({
-          history: [
-              {
-                  tiles: lvlObj.tiles,
-                  action: null,
-                  position: null // initial position
-              }
-          ],
-          level: lvlObj.level,
-          width: lvlObj.width,
-          height: lvlObj.height,
-          initPos: lvlObj.initPos,
-          totalFits: lvlObj.totalGoals,
-          fitCount: 0,
-          moveCount: 0,
-          moves: ['ArrowUp','ArrowLeft','ArrowDown','ArrowRight']
-        })
-      }
-      // console.log(JSON.stringify(lvlObj))
+  initSetup = () => {
+    const storage = window.localStorage
+    let uuid = storage.getItem('uuid')
+    
+    if (!uuid) {
+      uuid = uuidv4()
+      storage.setItem('uuid', uuid)
     }
+
+    window.fetch(`http://localhost:5000/load/${uuid}`)
+      .then(res => res.json())
+      .then(data => this.populate(data))
   }
 
+  populate = (data) => {
+    console.log(data)
+    this.setState({
+      history: [
+          {
+              tiles: data.tiles,
+              action: null,
+              position: null // initial position
+          }
+      ],
+      level: data.levelSeq,
+      width: data.width,
+      height: data.height,
+      initPos: data.initPos,
+      totalFits: data.totalGoals,
+      fitCount: 0,
+      moveCount: 0,
+      moves: []
+    })
+  }
+
+  advance = async () => {
+    console.log(
+      JSON.stringify({ 
+        uuid: window.localStorage.getItem('uuid'),
+        levelSeq: this.state.level
+      })
+    )
+    // fetch  
+    const response = await window.fetch('http://localhost:5000/pass', {
+      method: 'POST',
+      // mode: 'cors', // no-cors, *cors, same-origin
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        uuid: window.localStorage.getItem('uuid'),
+        levelSeq: this.state.level
+      }) // body data type must match "Content-Type" header
+    });
+
+    // return 
+    return response.json(); // parses JSON response into native JavaScript objects
+  }
+
+  componentDidMount() {
+    this.initSetup()
+  }
+
+  componentDidUpdate() {
+    if (this.isLevelCompleted()) this.advance().then(data => this.populate(data))
+  }
 
   render() {
     const score = {

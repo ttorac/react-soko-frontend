@@ -7,8 +7,8 @@ class Stopwatch extends React.Component {
 
     state = {hours: 0, minutes: 0, seconds: 0}
 
-    start() {
-        this.timerID = window.setInterval(() => this.tick(), 1000)
+    start() { // should only happen once
+        if (!this.timerID) this.timerID = window.setInterval(() => this.tick(), 1000)
     }
 
     tick = () => {
@@ -30,6 +30,7 @@ class Stopwatch extends React.Component {
 
     componentWillUnmount() {
         window.clearInterval(this.timerID)
+        this.timerID = null
     }
 
     render() {
