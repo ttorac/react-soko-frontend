@@ -1,5 +1,6 @@
 html { /* TODO - remove this */
-  background-color: wheat;
+  /*background-color: wheat;*/
+  min-height: 100%;
 }
 
 body {
@@ -9,6 +10,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100%;
 }
 
 code {
@@ -17,40 +19,80 @@ code {
 }
 
 
+.daddy {
+  display: flex;
+  justify-content: center;
+  /*background-color: red;*/
+  min-height: 800px;
+  align-items: center;
+}
+
+/*
+.daddy > div {
+  flex: 1;
+}
+*/
+
+.lefty {
+  background-color: transparent;
+}
+
+.righty {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 16px;
+  /*background-color: skyblue;*/
+  color: black;
+}
+
+
+.spacer {
+  clear: both;
+}
+
 /* LevelMap CSS */
-.t0, .t1, .t2, .t3, .t4, .t5, .t8, .t9 {
-  border: 1px solid black;
+.t0, .t1, .t2, .t3, .t4, .t5, .t8, .t9, .t8-up, .t8-left, .t8-down, .t8-right, .t9-up, .t9-left, .t9-down, .t9-right {
+  /* border: 1px solid black; */
   width: 32px;
   height: 32px;
   display: block;
   float: left;
 }
 
+.t0, .t1, .t2, .t3, .t4 {
+  background-image: url(/sprite.png);
+}
+
 .t0 {
   background-color: greenyellow;
+  background-position: -128px 0px;
 }
 
 .t1 {
   background-color: grey;
+  background-position: -32px -32px;
 }
 
 .t2 {
   background-color: gold;
+  background-position: -96px -32px;
 }
 
 .t3 {
   background-color: peru;
+  background-position: 0px -32px;
 }
 
 .t4 {
   background-color: khaki;
+  background-position: -64px -32px;
 }
 
 .t5 {
   background-color: transparent;
-  border: 1px solid transparent;
 }
 
+/* the remaining representations need to be separated and consider all combinations */
 .t8 {
   background-color: tomato;
 }
@@ -59,16 +101,50 @@ code {
   background-color: blueviolet;
 }
 
+/**/
+.t8-up {
+  background-image: url(/sprite.png), url(/sprite.png);
+  background-position: 0px 0px, -96px -32px;
+}
+.t8-left {
+  background-image: url(/sprite.png), url(/sprite.png);
+  background-position: -64px 0px, -96px -32px;
+}
+.t8-down {
+  background-image: url(/sprite.png), url(/sprite.png);
+  background-position: -96px 0px, -96px -32px;
+}
+.t8-right {
+  background-image: url(/sprite.png), url(/sprite.png);
+  background-position: -32px 0px, -96px -32px;
+}
+
+.t9-up {
+  background-image: url(/sprite.png), url(/sprite.png);
+  background-position: 0px 0px, -128px 0px;
+}
+.t9-left {
+  background-image: url(/sprite.png), url(/sprite.png);
+  background-position: -64px 0px, -128px 0px;
+}
+.t9-down {
+  background-image: url(/sprite.png), url(/sprite.png);
+  background-position: -96px 0px, -128px 0px;
+}
+.t9-right {
+  background-image: url(/sprite.png), url(/sprite.png);
+  background-position: -32px 0px, -128px 0px;
+}
+
 .l {
   clear: left;
 }
 
 /* Keypad CSS */
 .keypad {
-  float: left;
-  clear: both;
-  margin: 10px 10px;
-  padding: 10px;
+  width: fit-content;
+  margin: 16px auto;
+  padding: 3px;
   border: 1px solid gray;
 }
 
@@ -78,6 +154,9 @@ code {
   margin: 3px;
   width: 32px;
   height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .arrowUpKey, .arrowLeftKey, .arrowDownKey, .arrowRightKey {
@@ -94,23 +173,37 @@ code {
   background-color: yellowgreen;
 }
 
+.scoreboard {
+  border: 1px solid gray;
+  padding: 0px 8px;
+}
+
+.scoreboard dd  {
+  margin: 0px;
+  min-height: 28px;
+}
+
+.scoreboard h2 {
+  margin: 8px 0px;
+}
+
+.last-moves {
+  display: flex;
+}
+
 /* Key log component */
 .miniKey {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid gray;
-  width: 20px;
-  height: 20px;
-  display: inline-flex;
-  margin-left: 3px;
-  margin-right: 3px;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  box-sizing: border-box;
 }
 
 .miniKey span {
-  line-height: 100%;
-  vertical-align: middle;
-  width: inherit;
   text-align: center;
+  margin-bottom: 3px;
 }
-
-
-
-

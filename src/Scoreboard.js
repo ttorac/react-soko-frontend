@@ -8,7 +8,7 @@ class Scoreboard extends React.Component {
         this.numMovesDisplay = 3
     }
 
-    triggerStopwatch = () => this.refs.child.start()
+    // triggerStopwatch = () => this.refs.child.start()
 
     render() {
         const {level, moves, moveCount} = this.props.score
@@ -24,15 +24,17 @@ class Scoreboard extends React.Component {
         }
 
         return (
-            <div style={{fontFamily: 'Courier'}}>
+            <div className="scoreboard" style={{fontFamily: 'Courier'}}>
                 <h2>Level {level}</h2>
                 <dl>
                     <dt>Time Elapsed:</dt>
-                    <dd><Stopwatch ref="child" autoStart={false} /></dd>
+                    <dd><Stopwatch autoStart={(moveCount === 0)} 
+                        timeHandler={this.props.timeHandler} 
+                        intermission={this.props.intermission} /></dd>
                     <dt>Move Count:</dt>
                     <dd>{moveCount}</dd>
                     <dt>Last Moves:</dt>
-                    <dd>{lastMoves.map((value, index) => <Key key={index} keyCode={value} />)}</dd>
+                    <dd className="last-moves">{lastMoves.map((value, index) => <Key key={index} keyCode={value} />)}</dd>
                 </dl>
             </div>
         )

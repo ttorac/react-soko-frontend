@@ -50,11 +50,11 @@ class Keypad extends React.Component {
         return (
             <div className="keypad">
                 <div className="key"></div>
-                <div id="arrowUp" className={(keys.ArrowUp ? "lit " : "")+"key arrowUpKey"}>&#8593;</div>
+                <div id="arrowUp" className={(keys.ArrowUp ? "lit " : "")+"key arrowUpKey"}><span>&#8593;</span></div>
                 <div className="key"></div>
-                <div id="arrowLeft" className={(keys.ArrowLeft ? "lit " : "")+"key arrowLeftKey"}>&#8592;</div>
-                <div id="arrowDown" className={(keys.ArrowDown ? "lit " : "")+"key arrowDownKey"}>&#8595;</div>
-                <div id="arrowRight" className={(keys.ArrowRight ? "lit " : "")+"key arrowRightKey"}>&#8594;</div>
+                <div id="arrowLeft" className={(keys.ArrowLeft ? "lit " : "")+"key arrowLeftKey"}><span>&#8592;</span></div>
+                <div id="arrowDown" className={(keys.ArrowDown ? "lit " : "")+"key arrowDownKey"}><span>&#8595;</span></div>
+                <div id="arrowRight" className={(keys.ArrowRight ? "lit " : "")+"key arrowRightKey"}><span>&#8594;</span></div>
             </div>
         )
     }

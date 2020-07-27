@@ -6,11 +6,28 @@ import './App.css'
 import { TileEnum, tileMap } from './Tiles'
 import {v4 as uuidv4} from 'uuid'
 
+// export const time = {
+//   hours: 0, 
+//   minutes: 0, 
+//   seconds: 0
+// }
+// export const GameContext = React.createContext(time)
+
+
+// class MainProvider extends React.Component {
+  
+// }
+
 class App extends React.Component {
 
   constructor(props) {
     super(props)
+    this.currentElapsedTime = {hours: 0, minutes: 0, seconds: 0}
     this.state = this.initState
+  }
+
+  timeHandler = (obj) => {
+    this.currentElapsedTime = obj
   }
   
   initState = {
@@ -41,38 +58,54 @@ class App extends React.Component {
     moves: []
   }
 
-  actionHandler = (action) => {
+  actionHandler = (action) => { // FIX - this entire code might need to be wrapped in a setState function
     // let {action} = this.props
-
     // // get data
-    const {history} = this.state
+    const {history, moves} = this.state 
     const histCopy = history.slice()
-    const currentRound = this.getCurrentRound(histCopy)
-    const tilesCopy = currentRound.tiles.slice()
 
-    const objRounds = histCopy.concat([{tiles: tilesCopy, action: currentRound.action, position: currentRound.position}])
+    const histCopyLength = histCopy.length
+    const lastRoundCopy = histCopy[histCopyLength-1]
+
+    const tilesCopy = lastRoundCopy.tiles.slice()
+
+    let currentRound = {
+      tiles: tilesCopy, 
+      action: lastRoundCopy.action, 
+      position: lastRoundCopy.position
+    }
     
     // AUDIT - this may need to be audit by someone more experienced
 
-    this.doAction(action, objRounds)
-  }
 
-  doAction(action, rounds) { //TODO - might need rework or rename
-    // currentRound = this.getCurrentRound(rounds) // FIX - this may change
-    // rounds
-    const currentPosition = this.getCurrentPosition(rounds)
+    const currentPosition = this.getCurrentPosition(currentRound)
     // window.alert('\nin do action: ' + JSON.stringify(rounds))
-    if  (this.isMoveLegal(currentPosition, action, rounds)) {
-        this.doShift(currentPosition, action, rounds)
+    if  (this.isMoveLegal(currentPosition, action, currentRound)) {
+      this.doShift(currentPosition, action, currentRound)
+
+      // save changes made in doShift
+      this.setState({
+        history: histCopy.concat([currentRound]),
+        moveCount: histCopyLength,
+        moves: moves.concat([action])
+      }) 
     }
   }
 
-  doShift(pos, dir, rounds) {
+  // doAction(action, rounds) { //TODO - might need rework or rename
+  //   // currentRound = this.getCurrentRound(rounds) // FIX - this may change
+  //   // rounds
+  //   const currentPosition = this.getCurrentPosition(rounds)
+  //   // window.alert('\nin do action: ' + JSON.stringify(rounds))
+  //   if  (this.isMoveLegal(currentPosition, action, rounds)) {
+  //       this.doShift(currentPosition, action, rounds)
+  //   }
+  // }
 
-      // const {tiles} = this.state - using whats coming from render()
-      const roundNumber = rounds.length - 1
-      const currentRound = rounds[roundNumber]
+  doShift(pos, dir, currentRound) {
+
       const tiles = currentRound.tiles
+
       let index1 = null, index2 = null // plus pos (initial index)
       let charTile = null, targetTile1 = null, targetTile2 = null
       let newCharTile = null, newTile1 = null, newTile2 = null
@@ -116,11 +149,12 @@ class App extends React.Component {
       currentRound.action = dir
 
       // window.alert('went til the end')
-      
-      this.setState({
-          history: rounds,
-          moveCount: roundNumber
-      })
+
+      /* this was moved to parent parent method*/
+      // this.setState({
+      //     history: rounds,
+      //     moveCount: roundNumber
+      // })
 
       
   }
@@ -143,12 +177,13 @@ class App extends React.Component {
       }
   }
 
-  isMoveLegal = (pos, dir, rounds) => {
+  isMoveLegal = (pos, dir, currentRound) => {
       // const {tiles} = this.state - moved to render
 
       if (dir == null) return false
 
-      const tiles = this.getCurrentRound(rounds).tiles
+      const tiles = currentRound.tiles
+      // const pos = this.getCurrentPosition(currentRound)
       
       let targetIndex = this.getTargetIndex(pos,dir)
       
@@ -170,8 +205,8 @@ class App extends React.Component {
     return rounds[numRounds-1]
   }
 
-  getCurrentPosition = (rounds) => {
-    const pos = this.getCurrentRound(rounds).position
+  getCurrentPosition = (currentRound) => {
+    const pos = currentRound.position
     // window.alert(pos)
     if (pos == null)
       return this.state.initPos
@@ -248,8 +283,10 @@ class App extends React.Component {
       }) // body data type must match "Content-Type" header
     });
 
+    // console.log('breakstart')
+    // window.setTimeout(console.log('breakend'), 3000)
     // return 
-    return response.json(); // parses JSON response into native JavaScript objects
+    return response.json().then(data => this.populate(data)) // parses JSON response into native JavaScript objects
   }
 
   componentDidMount() {
@@ -257,7 +294,8 @@ class App extends React.Component {
   }
 
   componentDidUpdate() {
-    if (this.isLevelCompleted()) this.advance().then(data => this.populate(data))
+    console.log(JSON.stringify(this.currentElapsedTime))
+    if (this.isLevelCompleted()) window.setTimeout(this.advance, 2000)
   }
 
   render() {
@@ -269,13 +307,20 @@ class App extends React.Component {
     }
 
     return (
-      <div id="main">
-        <LevelMap game={this.state}  />
-        <Keypad callback={this.actionHandler} lock={this.isLevelCompleted()} />
-        <Scoreboard score={score} />
+      <div className="daddy">
+        <div className="lefty">
+          <div id="main">
+            <LevelMap game={this.state}  />
+          </div>
+        </div>
+        <div className="righty">
+          <Scoreboard score={score} timeHandler={this.timeHandler} intermission={this.isLevelCompleted()} />
+          <Keypad callback={this.actionHandler} lock={this.isLevelCompleted()} />
+        </div>
       </div>
     )
   }
 }
+// App.contextType = GameContext
 
 export default App;

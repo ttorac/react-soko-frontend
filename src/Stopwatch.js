@@ -3,29 +3,64 @@ import React from 'react'
 class Stopwatch extends React.Component {
     constructor(props) {
         super(props)
+        this.state = this.initState
     }
 
-    state = {hours: 0, minutes: 0, seconds: 0}
+    initState = {hours: 0, minutes: 0, seconds: 0}
 
     start() { // should only happen once
-        if (!this.timerID) this.timerID = window.setInterval(() => this.tick(), 1000)
+        console.log('started')
+        if (!this.timerID) {
+            this.reset()
+            this.timerID = window.setInterval(() => this.tick(), 1000)   
+        }
     }
 
+    reset() {
+        this.setState(this.initState)
+    }
+
+    stop() {
+        window.clearInterval(this.timerID)
+        this.timerID = null
+    }
+
+    // split() {}
+
+    // submit() {
+    //     // const {hours, minutes, seconds} = this.state
+    //     // const {timeHandler} = this.props
+    //     // timeHandler(`${hours}:${minutes}:${seconds}`)
+    // }
+
     tick = () => {
-        let {seconds, minutes, hours} = this.state
-        if (++seconds === 60) {
-            seconds = 0
-            if (++minutes === 60) {
-                minutes = 0
-                hours++
+        const {timeHandler} = this.props
+        this.setState( prevState => {
+            // console.log('inside setState: '+autoStart)
+            let {seconds, minutes, hours} = prevState
+            if (++seconds === 60) {
+                seconds = 0
+                if (++minutes === 60) {
+                    minutes = 0
+                    hours++
+                }
             }
-        }
-        this.setState({seconds: seconds, minutes: minutes, hours: hours})
+
+            const newTime = {seconds: seconds, minutes: minutes, hours: hours}
+            timeHandler(newTime)
+            return newTime
+        })
     }
 
     componentDidMount() {
         const {autoStart} = this.props
-        if (autoStart !== undefined && autoStart !== null && autoStart) this.start()
+        if (autoStart) this.start()
+    }
+
+    componentDidUpdate() {
+        const {autoStart, intermission} = this.props
+        if (autoStart) this.start()
+        else if (intermission) this.stop()
     }
 
     componentWillUnmount() {
