@@ -9,7 +9,7 @@ class Stopwatch extends React.Component {
     initState = {hours: 0, minutes: 0, seconds: 0}
 
     start() { // should only happen once
-        console.log('started')
+        // console.log('started')
         if (!this.timerID) {
             this.reset()
             this.timerID = window.setInterval(() => this.tick(), 1000)   

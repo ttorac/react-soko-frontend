@@ -23,7 +23,7 @@ class Keypad extends React.Component {
         this.setState({keys: {[e.code]: true}})
         this.props.callback(e.code)
         // console.log(this.state)
-        console.log(`keydown: ${e.code}\n`)
+        // console.log(`keydown: ${e.code}\n`)
     }
         
 

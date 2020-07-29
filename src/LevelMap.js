@@ -40,7 +40,7 @@ class LevelMap extends React.Component {
             return <div key={i} className={className} />
         })
                 
-        level.push(<div className="spacer"></div>) // add spacer at the end
+        // level.push(<div key={} className="spacer"></div>) // add spacer at the end
         return level
     }
 }

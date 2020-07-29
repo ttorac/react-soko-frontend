@@ -237,7 +237,7 @@ class App extends React.Component {
       storage.setItem('uuid', uuid)
     }
 
-    window.fetch(`http://localhost:5000/load/${uuid}`)
+    window.fetch(`${process.env.REACT_APP_API_URL}/load/${uuid}`)
       .then(res => res.json())
       .then(data => this.populate(data))
   }
@@ -271,7 +271,7 @@ class App extends React.Component {
       })
     )
     // fetch  
-    const response = await window.fetch('http://localhost:5000/pass', {
+    const response = await window.fetch(`${process.env.REACT_APP_API_URL}/pass`, {
       method: 'POST',
       // mode: 'cors', // no-cors, *cors, same-origin
       headers: {
@@ -294,7 +294,7 @@ class App extends React.Component {
   }
 
   componentDidUpdate() {
-    console.log(JSON.stringify(this.currentElapsedTime))
+    // console.log(JSON.stringify(this.currentElapsedTime))
     if (this.isLevelCompleted()) window.setTimeout(this.advance, 2000)
   }
 

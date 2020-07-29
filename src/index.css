@@ -60,7 +60,7 @@ code {
 }
 
 .t0, .t1, .t2, .t3, .t4 {
-  background-image: url(/sprite.png);
+  background-image: url(assets/sprite.png);
 }
 
 .t0 {
@@ -103,36 +103,36 @@ code {
 
 /**/
 .t8-up {
-  background-image: url(/sprite.png), url(/sprite.png);
+  background-image: url(assets/sprite.png), url(assets/sprite.png);
   background-position: 0px 0px, -96px -32px;
 }
 .t8-left {
-  background-image: url(/sprite.png), url(/sprite.png);
+  background-image: url(assets/sprite.png), url(assets/sprite.png);
   background-position: -64px 0px, -96px -32px;
 }
 .t8-down {
-  background-image: url(/sprite.png), url(/sprite.png);
+  background-image: url(assets/sprite.png), url(assets/sprite.png);
   background-position: -96px 0px, -96px -32px;
 }
 .t8-right {
-  background-image: url(/sprite.png), url(/sprite.png);
+  background-image: url(assets/sprite.png), url(assets/sprite.png);
   background-position: -32px 0px, -96px -32px;
 }
 
 .t9-up {
-  background-image: url(/sprite.png), url(/sprite.png);
+  background-image: url(assets/sprite.png), url(assets/sprite.png);
   background-position: 0px 0px, -128px 0px;
 }
 .t9-left {
-  background-image: url(/sprite.png), url(/sprite.png);
+  background-image: url(assets/sprite.png), url(assets/sprite.png);
   background-position: -64px 0px, -128px 0px;
 }
 .t9-down {
-  background-image: url(/sprite.png), url(/sprite.png);
+  background-image: url(assets/sprite.png), url(assets/sprite.png);
   background-position: -96px 0px, -128px 0px;
 }
 .t9-right {
-  background-image: url(/sprite.png), url(/sprite.png);
+  background-image: url(assets/sprite.png), url(assets/sprite.png);
   background-position: -32px 0px, -128px 0px;
 }
 
